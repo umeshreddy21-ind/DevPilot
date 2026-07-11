@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | DevPilot</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        🚀 DevPilot
+    </div>
+
+    <ul>
+
+        <li><a href="/">Home</a></li>
+
+        <li><a href="/login">Logout</a></li>
+
+    </ul>
+
+</nav>
+
+<section class="hero">
+
+    <h1>Dashboard 📊</h1>
+
+    <p>Welcome to your Developer Workspace.</p>
+
+    <div class="feature-container">
+
+        <div class="card">
+
+            <h3>📁 Projects</h3>
+
+            <p>Manage all your software projects.</p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>📝 Notes</h3>
+
+            <p>Store coding notes and documentation.</p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>🤖 AI Assistant</h3>
+
+            <p>Get instant coding help anytime.</p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>
