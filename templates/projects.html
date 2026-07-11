@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Projects | DevPilot</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav>
+
+        <div class="logo">
+            🚀 DevPilot
+        </div>
+
+        <ul>
+
+            <li><a href="/dashboard">Dashboard</a></li>
+
+            <li><a href="/logout">Logout</a></li>
+
+        </ul>
+
+    </nav>
+
+    <!-- Projects Section -->
+
+    <section class="hero">
+
+        <h1>My Projects 📁</h1>
+
+        <p>Create and manage your software projects.</p>
+
+        <form method="POST">
+
+            <input
+                type="text"
+                name="title"
+                placeholder="Project Title"
+                required
+            >
+
+            <br><br>
+
+            <textarea
+                name="description"
+                placeholder="Project Description"
+                rows="5"
+                cols="50"
+                required
+            ></textarea>
+
+            <br><br>
+
+            <button class="primary" type="submit">
+                Create Project
+            </button>
+
+        </form>
+
+        <br><br>
+
+        <hr>
+
+        <br>
+
+        <h2>My Saved Projects</h2>
+
+        {% if projects %}
+
+        <table border="1" cellpadding="10" cellspacing="0" style="margin:auto; margin-top:20px;">
+
+            <tr>
+
+                <th>Title</th>
+
+                <th>Description</th>
+
+                <th>Action</th>
+
+            </tr>
+
+            {% for project in projects %}
+
+            <tr>
+
+                <td>{{ project.title }}</td>
+
+                <td>{{ project.description }}</td>
+
+                <td>
+
+                    <a href="/edit_project/{{ project.id }}">
+
+                        <button class="primary">
+                            Edit
+                        </button>
+
+                    </a>
+
+                    <a href="/delete_project/{{ project.id }}">
+
+                        <button class="secondary">
+                            Delete
+                        </button>
+
+                    </a>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        {% else %}
+
+        <p>No projects created yet.</p>
+
+        {% endif %}
+
+    </section>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+
+</html>

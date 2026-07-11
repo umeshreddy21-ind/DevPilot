@@ -22,9 +22,9 @@
 
     <ul>
 
-        <li><a href="/">Home</a></li>
+        <li><a href="/projects">Projects</a></li>
 
-        <li><a href="/login">Logout</a></li>
+        <li><a href="/logout">Logout</a></li>
 
     </ul>
 
@@ -32,9 +32,9 @@
 
 <section class="hero">
 
-    <h1>Dashboard 📊</h1>
+    <h1>Welcome, {{ username }} 👋</h1>
 
-    <p>Welcome to your Developer Workspace.</p>
+    <p>Your personal developer workspace.</p>
 
     <div class="feature-container">
 
@@ -42,7 +42,9 @@
 
             <h3>📁 Projects</h3>
 
-            <p>Manage all your software projects.</p>
+            <h2>{{ projects_count }}</h2>
+
+            <p>Total Projects</p>
 
         </div>
 
@@ -50,19 +52,45 @@
 
             <h3>📝 Notes</h3>
 
-            <p>Store coding notes and documentation.</p>
+            <h2>Coming Soon</h2>
+
+            <p>Notes Manager</p>
 
         </div>
 
         <div class="card">
 
-            <h3>🤖 AI Assistant</h3>
+            <h3>✅ Tasks</h3>
 
-            <p>Get instant coding help anytime.</p>
+            <h2>Coming Soon</h2>
+
+            <p>Task Manager</p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>🤖 AI</h3>
+
+            <h2>Ready</h2>
+
+            <p>AI Coding Assistant</p>
 
         </div>
 
     </div>
+
+    <br><br>
+
+    <a href="/projects">
+
+        <button class="primary">
+
+            Manage Projects
+
+        </button>
+
+    </a>
 
 </section>
 
