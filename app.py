@@ -5,8 +5,6 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
 import uuid
-from urllib.parse import urlparse
-from werkzeug.utils import secure_filename
 from models import db, User, Project, Note
 from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -51,7 +49,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Secret Key
 # ==========================================
 
-app.secret_key = os.environ.get(
+app.config["SECRET_KEY"] = os.environ.get(
     "SECRET_KEY",
     "devpilot_secret_key"
 )
@@ -296,17 +294,13 @@ def dashboard():
     # =====================================
 
     categories = [
-
-        "Web",
-
+        "Web Development",
         "Python",
-
         "Java",
-
-        "Machine Learning",
-
+        "AI/ML",
+        "IoT",
         "Database",
-
+        "Mobile App",
         "Other"
 
     ]
@@ -951,7 +945,7 @@ def edit_project(project_id):
             )
 
             project.project_file = filename
-                    # =====================================
+        # =====================================
         # Server-side Validation
         # =====================================
 
