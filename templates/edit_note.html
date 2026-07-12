@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-md-8">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">Edit Note</h3>
+            </div>
+
+            <div class="card-body">
+
+                <!-- Bootstrap Validation Form -->
+
+                <form method="POST" class="needs-validation" novalidate>
+
+                    <!-- Note Title -->
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Note Title
+                        </label>
+
+                        <input
+                            type="text"
+                            name="title"
+                            class="form-control"
+                            value="{{ note.title }}"
+                            minlength="3"
+                            maxlength="100"
+                            required>
+
+                        <div class="invalid-feedback">
+                            Note title must be between 3 and 100 characters.
+                        </div>
+
+                    </div>
+
+                    <!-- Note Content -->
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Note Content
+                        </label>
+
+                        <textarea
+                            name="content"
+                            class="form-control"
+                            rows="6"
+                            minlength="5"
+                            required>{{ note.content }}</textarea>
+
+                        <div class="invalid-feedback">
+                            Note content must be at least 5 characters long.
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        Update Note
+                    </button>
+
+                    <a href="/notes" class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Bootstrap Client-side Validation -->
+
+<script>
+
+(() => {
+
+    'use strict';
+
+    const forms = document.querySelectorAll('.needs-validation');
+
+    Array.from(forms).forEach(form => {
+
+        form.addEventListener('submit', event => {
+
+            if (!form.checkValidity()) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+            }
+
+            form.classList.add('was-validated');
+
+        }, false);
+
+    });
+
+})();
+
+</script>
+
+{% endblock %}

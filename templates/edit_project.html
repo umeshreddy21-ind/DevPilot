@@ -1,66 +1,351 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block content %}
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<div class="container mt-4">
 
-    <title>Edit Project | DevPilot</title>
+    <div class="row justify-content-center">
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <div class="col-lg-8">
 
-</head>
+            <div class="card shadow border-0">
 
-<body>
+                <div class="card-header bg-success text-white">
 
-<nav>
+                    <h3 class="mb-0">
+                        ✏ Edit Project
+                    </h3>
 
-    <div class="logo">
-        🚀 DevPilot
+                </div>
+
+                <div class="card-body">
+
+                    <form method="POST"
+                          enctype="multipart/form-data"
+                          class="needs-validation"
+                          novalidate>
+
+                        <!-- ========================= -->
+                        <!-- Project Title -->
+                        <!-- ========================= -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Project Title
+
+                            </label>
+
+                            <input
+                                type="text"
+                                name="title"
+                                class="form-control"
+                                value="{{ project.title }}"
+                                minlength="3"
+                                maxlength="100"
+                                required>
+
+                            <div class="invalid-feedback">
+
+                                Project title must be between 3 and 100 characters.
+
+                            </div>
+
+                        </div>
+
+                        <!-- ========================= -->
+                        <!-- Description -->
+                        <!-- ========================= -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Description
+
+                            </label>
+
+                            <textarea
+                                name="description"
+                                rows="5"
+                                class="form-control"
+                                minlength="10"
+                                required>{{ project.description }}</textarea>
+
+                            <div class="invalid-feedback">
+
+                                Description must be at least 10 characters.
+
+                            </div>
+
+                        </div>
+
+                        <!-- ========================= -->
+                        <!-- Row -->
+                        <!-- ========================= -->
+
+                        <div class="row">
+
+                            <!-- Status -->
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+
+                                    Status
+
+                                </label>
+
+                                <select
+                                    name="status"
+                                    class="form-select"
+                                    required>
+
+                                    <option value="Pending"
+                                        {% if project.status=="Pending" %}selected{% endif %}>
+                                        Pending
+                                    </option>
+
+                                    <option value="In Progress"
+                                        {% if project.status=="In Progress" %}selected{% endif %}>
+                                        In Progress
+                                    </option>
+
+                                    <option value="Completed"
+                                        {% if project.status=="Completed" %}selected{% endif %}>
+                                        Completed
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- Priority -->
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+
+                                    Priority
+
+                                </label>
+
+                                <select
+                                    name="priority"
+                                    class="form-select"
+                                    required>
+
+                                    <option value="High"
+                                        {% if project.priority=="High" %}selected{% endif %}>
+                                        High
+                                    </option>
+
+                                    <option value="Medium"
+                                        {% if project.priority=="Medium" %}selected{% endif %}>
+                                        Medium
+                                    </option>
+
+                                    <option value="Low"
+                                        {% if project.priority=="Low" %}selected{% endif %}>
+                                        Low
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- Due Date -->
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+
+                                    Due Date
+
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="due_date"
+                                    class="form-control"
+                                    value="{% if project.due_date %}{{ project.due_date.strftime('%Y-%m-%d') }}{% endif %}">
+
+                            </div>
+
+                        </div>
+
+                        <!-- ========================= -->
+                        <!-- Category -->
+                        <!-- ========================= -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Category
+
+                            </label>
+
+                            <select
+                                name="category"
+                                class="form-select"
+                                required>
+
+                                <option value="Web"
+                                    {% if project.category=="Web" %}selected{% endif %}>
+                                    Web
+                                </option>
+
+                                <option value="Python"
+                                    {% if project.category=="Python" %}selected{% endif %}>
+                                    Python
+                                </option>
+
+                                <option value="Java"
+                                    {% if project.category=="Java" %}selected{% endif %}>
+                                    Java
+                                </option>
+
+                                <option value="Machine Learning"
+                                    {% if project.category=="Machine Learning" %}selected{% endif %}>
+                                    Machine Learning
+                                </option>
+
+                                <option value="Database"
+                                    {% if project.category=="Database" %}selected{% endif %}>
+                                    Database
+                                </option>
+
+                                <option value="Other"
+                                    {% if project.category=="Other" %}selected{% endif %}>
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <!-- ========================= -->
+                        <!-- Current Attachment -->
+                        <!-- ========================= -->
+
+                        {% if project.project_file %}
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Current Attachment
+
+                            </label>
+
+                            <br>
+
+                            <a
+                                href="{{ url_for('static', filename='uploads/' + project.project_file) }}"
+                                target="_blank"
+                                class="btn btn-outline-primary btn-sm">
+
+                                📎 View Current File
+
+                            </a>
+
+                        </div>
+
+                        {% endif %}
+
+                        <!-- ========================= -->
+                        <!-- Replace Attachment -->
+                        <!-- ========================= -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label">
+
+                                Replace Attachment
+
+                            </label>
+
+                            <input
+                                type="file"
+                                name="project_file"
+                                class="form-control"
+                                accept=".png,.jpg,.jpeg,.pdf,.doc,.docx">
+
+                            <div class="form-text">
+
+                                Leave empty if you don't want to change the current attachment.
+
+                            </div>
+
+                        </div>
+
+                        <!-- ========================= -->
+                        <!-- Buttons -->
+                        <!-- ========================= -->
+
+                        <div class="d-flex justify-content-between">
+
+                            <a
+                                href="{{ url_for('projects') }}"
+                                class="btn btn-secondary">
+
+                                ← Back
+
+                            </a>
+
+                            <button
+                                type="submit"
+                                class="btn btn-success">
+
+                                💾 Update Project
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <ul>
+</div>
 
-        <li><a href="/projects">Projects</a></li>
+<!-- Bootstrap Validation -->
 
-        <li><a href="/logout">Logout</a></li>
+<script>
 
-    </ul>
+(() => {
 
-</nav>
+    'use strict';
 
-<section class="hero">
+    const forms = document.querySelectorAll('.needs-validation');
 
-    <h1>Edit Project ✏️</h1>
+    Array.from(forms).forEach(form => {
 
-    <form method="POST">
+        form.addEventListener('submit', event => {
 
-        <input
-            type="text"
-            name="title"
-            value="{{ project.title }}"
-            required
-        >
+            if (!form.checkValidity()) {
 
-        <br><br>
+                event.preventDefault();
+                event.stopPropagation();
 
-        <textarea
-            name="description"
-            rows="5"
-            cols="50"
-            required>{{ project.description }}</textarea>
+            }
 
-        <br><br>
+            form.classList.add('was-validated');
 
-        <button class="primary" type="submit">
-            Update Project
-        </button>
+        }, false);
 
-    </form>
+    });
 
-</section>
+})();
 
-</body>
+</script>
 
-</html>
+{% endblock %}

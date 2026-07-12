@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1">
+
+    <title>DevPilot</title>
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- ===================================== -->
+    <!-- Global CSS -->
+    <!-- ===================================== -->
+
+    <style>
+
+    html{
+
+        scroll-behavior:smooth;
+
+    }
+
+    body{
+
+        transition:.3s;
+
+        min-height:100vh;
+
+        background:#f8f9fa;
+
+    }
+
+    /* Cards */
+
+    .card{
+
+        border:none;
+
+        border-radius:15px;
+
+        transition:.25s;
+
+    }
+
+    .card:hover{
+
+        transform:translateY(-5px);
+
+    }
+
+    /* Buttons */
+
+    .btn{
+
+        border-radius:10px;
+
+    }
+
+    /* Progress */
+
+    .progress{
+
+        border-radius:20px;
+
+    }
+
+    /* Tables */
+
+    .table{
+
+        vertical-align:middle;
+
+    }
+
+    .table tbody tr{
+
+        transition:.2s;
+
+    }
+
+    .table tbody tr:hover{
+
+        background:#f5f5f5;
+
+    }
+
+    /* Badges */
+
+    .badge{
+
+        font-size:.85rem;
+
+    }
+
+    /* Navbar */
+
+    .navbar-brand{
+
+        font-size:1.4rem;
+
+        font-weight:bold;
+
+    }
+
+    /* ===================================== */
+    /* Dark Mode */
+    /* ===================================== */
+
+    body.dark-mode{
+
+        background:#121212;
+
+        color:white;
+
+    }
+
+    body.dark-mode .navbar{
+
+        background:#1c1c1c !important;
+
+    }
+
+    body.dark-mode .card{
+
+        background:#1f1f1f;
+
+        color:white;
+
+    }
+
+    body.dark-mode .card-header{
+
+        color:white;
+
+    }
+
+    body.dark-mode .table{
+
+        color:white;
+
+    }
+
+    body.dark-mode .table-hover tbody tr:hover{
+
+        background:#2d2d2d;
+
+    }
+
+    body.dark-mode .table-light{
+
+        background:#343a40;
+
+        color:white;
+
+    }
+
+    body.dark-mode .form-control,
+
+    body.dark-mode .form-select{
+
+        background:#2b2b2b;
+
+        color:white;
+
+        border-color:#555;
+
+    }
+
+    body.dark-mode .form-control::placeholder{
+
+        color:#bbbbbb;
+
+    }
+
+    body.dark-mode .form-control:focus,
+
+    body.dark-mode .form-select:focus{
+
+        background:#2b2b2b;
+
+        color:white;
+
+    }
+
+    body.dark-mode .list-group-item{
+
+        background:#1f1f1f;
+
+        color:white;
+
+        border-color:#444;
+
+    }
+
+    body.dark-mode .modal-content{
+
+        background:#222;
+
+        color:white;
+
+    }
+
+    body.dark-mode .dropdown-menu{
+
+        background:#222;
+
+    }
+
+    body.dark-mode .dropdown-item{
+
+        color:white;
+
+    }
+
+    body.dark-mode .dropdown-item:hover{
+
+        background:#333;
+
+    }
+
+    body.dark-mode .text-muted{
+
+        color:#cccccc !important;
+
+    }
+
+    body.dark-mode .pagination .page-link{
+
+        background:#2b2b2b;
+
+        color:white;
+
+        border-color:#555;
+
+    }
+
+    body.dark-mode footer{
+
+        background:#1b1b1b;
+
+    }
+
+    </style>
+
+</head>
+
+<body id="body">
+
+<!-- ===================================== -->
+<!-- Navbar -->
+<!-- ===================================== -->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+
+    <div class="container">
+
+        <a
+            class="navbar-brand"
+            href="/dashboard">
+
+            🚀 DevPilot
+
+        </a>
+
+        {% if session.get("user") %}
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a
+                href="/dashboard"
+                class="btn btn-outline-light">
+
+                <i class="bi bi-speedometer2"></i>
+
+                Dashboard
+
+            </a>
+
+            <a
+                href="/projects"
+                class="btn btn-outline-primary">
+
+                <i class="bi bi-folder2-open"></i>
+
+                Projects
+
+            </a>
+
+            <a
+                href="/notes"
+                class="btn btn-outline-success">
+
+                <i class="bi bi-journal-text"></i>
+
+                Notes
+
+            </a>
+
+            <button
+
+                id="themeToggle"
+
+                class="btn btn-outline-warning">
+
+                🌙 Dark
+
+            </button>
+
+            <a
+                href="/logout"
+                class="btn btn-danger">
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                Logout
+
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</nav>
+
+<div class="container mt-4">
+
+<!-- ===================================== -->
+<!-- Toast Notifications -->
+<!-- ===================================== -->
+
+<div
+
+class="toast-container position-fixed top-0 end-0 p-3"
+
+style="z-index:9999;">
+
+{% with messages=get_flashed_messages(with_categories=true) %}
+
+{% if messages %}
+
+{% for category,message in messages %}
+
+<div
+
+class="toast text-bg-{{ category }} border-0"
+
+role="alert"
+
+data-bs-delay="3500">
+
+<div class="d-flex">
+
+<div class="toast-body">
+
+{{ message }}
+
+</div>
+
+<button
+
+type="button"
+
+class="btn-close btn-close-white me-2 m-auto"
+
+data-bs-dismiss="toast">
+
+</button>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+{% endwith %}
+
+</div>
+
+{% block content %}
+
+{% endblock %}
+
+</div>
+<!-- ===================================== -->
+<!-- Bootstrap JS -->
+<!-- ===================================== -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ===================================== -->
+<!-- Dark Mode + Toast Notifications -->
+<!-- ===================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // =====================================
+    // Dark Mode
+    // =====================================
+
+    const body = document.getElementById("body");
+
+    const toggle = document.getElementById("themeToggle");
+
+    if (toggle) {
+
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme === "dark") {
+
+            body.classList.add("dark-mode");
+
+            toggle.innerHTML = "☀ Light";
+
+        }
+
+        toggle.addEventListener("click", function () {
+
+            body.classList.toggle("dark-mode");
+
+            if (body.classList.contains("dark-mode")) {
+
+                localStorage.setItem("theme", "dark");
+
+                toggle.innerHTML = "☀ Light";
+
+            }
+
+            else {
+
+                localStorage.setItem("theme", "light");
+
+                toggle.innerHTML = "🌙 Dark";
+
+            }
+
+        });
+
+    }
+
+    // =====================================
+    // Toast Notifications
+    // =====================================
+
+    const toastElements = document.querySelectorAll(".toast");
+
+    toastElements.forEach(function (toastElement) {
+
+        const toast = new bootstrap.Toast(toastElement);
+
+        toast.show();
+
+    });
+
+});
+
+</script>
+
+<!-- ===================================== -->
+<!-- Global UI Improvements -->
+<!-- ===================================== -->
+
+<style>
+
+/* Smooth Fade Animation */
+
+.card,
+.btn,
+.form-control,
+.form-select,
+.table,
+.alert{
+
+    transition:0.25s ease;
+
+}
+
+/* Better Buttons */
+
+.btn:hover{
+
+    transform:translateY(-2px);
+
+}
+
+/* Better Inputs */
+
+.form-control:focus,
+.form-select:focus{
+
+    box-shadow:0 0 0 .2rem rgba(13,110,253,.25);
+
+}
+
+/* Dashboard Cards */
+
+.card{
+
+    overflow:hidden;
+
+}
+
+.card-header{
+
+    font-weight:600;
+
+}
+
+/* Navbar */
+
+.navbar{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:1000;
+
+}
+
+/* Toast */
+
+.toast{
+
+    min-width:320px;
+
+    border-radius:12px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.2);
+
+}
+
+/* Scrollbar */
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#888;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#555;
+
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb{
+
+    background:#666;
+
+}
+
+/* Footer (future-ready) */
+
+footer{
+
+    margin-top:50px;
+
+    padding:20px;
+
+    text-align:center;
+
+    font-size:14px;
+
+    color:#777;
+
+}
+
+</style>
+
+<!-- ===================================== -->
+<!-- Footer -->
+<!-- ===================================== -->
+
+<footer>
+
+    © 2026 <strong>DevPilot</strong> |
+    Built with using Flask & Bootstrap
+
+</footer>
+
+</body>
+
+</html>
