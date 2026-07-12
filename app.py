@@ -5,13 +5,31 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
 import uuid
+from urllib.parse import urlparse
 from werkzeug.utils import secure_filename
 from models import db, User, Project, Note
 from sqlalchemy import or_
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-UPLOAD_FOLDER = "static/uploads"
+
+# ==========================================
+# Upload Configuration
+# ==========================================
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+UPLOAD_FOLDER = os.path.join(
+    BASE_DIR,
+    "static",
+    "uploads"
+)
+
+os.makedirs(
+    UPLOAD_FOLDER,
+    exist_ok=True
+)
+
 ALLOWED_EXTENSIONS = {
     "png",
     "jpg",
@@ -27,18 +45,38 @@ def allowed_file(filename):
         "." in filename
         and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
     )
-
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # ==========================================
 # Secret Key
 # ==========================================
-app.secret_key = "devpilot_secret_key"
+
+app.secret_key = os.environ.get(
+    "SECRET_KEY",
+    "devpilot_secret_key"
+)
 
 # ==========================================
 # Database Configuration
 # ==========================================
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///devpilot.db"
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace(
+            "postgres://",
+            "postgresql://",
+            1
+        )
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
+
+else:
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///devpilot.db"
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
@@ -421,54 +459,48 @@ def projects():
 
             due_date = None
 
-        # -----------------------------
+        # =====================================
         # File Upload
-        # -----------------------------
+        # =====================================
 
         uploaded_file = request.files.get("project_file")
 
         filename = None
 
-        if uploaded_file and uploaded_file.filename != "":
+        if uploaded_file and uploaded_file.filename:
 
-            if allowed_file(uploaded_file.filename):
-
-                extension = uploaded_file.filename.rsplit(
-                    ".",
-                    1
-                )[1].lower()
-
-                filename = f"{uuid.uuid4()}.{extension}"
-
-                uploaded_file.save(
-
-                    os.path.join(
-
-                        app.config["UPLOAD_FOLDER"],
-
-                        filename
-
-                    )
-
-                )
-
-            else:
+            if not allowed_file(uploaded_file.filename):
 
                 flash(
-
                     "Only PNG, JPG, JPEG, PDF, DOC and DOCX files are allowed.",
-
                     "danger"
-
                 )
 
                 return redirect(
                     url_for("projects")
                 )
 
-        # -----------------------------
+            extension = uploaded_file.filename.rsplit(
+                ".",
+                1
+            )[1].lower()
+
+            filename = f"{uuid.uuid4()}.{extension}"
+
+            uploaded_file.save(
+
+                os.path.join(
+
+                    app.config["UPLOAD_FOLDER"],
+
+                    filename
+
+                )
+
+            )
+            # =====================================
         # Validation
-        # -----------------------------
+        # =====================================
 
         if len(title) < 3 or len(title) > 100:
 
@@ -583,9 +615,13 @@ def projects():
 
             or_(
 
-                Project.title.ilike(f"%{search_query}%"),
+                Project.title.ilike(
+                    f"%{search_query}%"
+                ),
 
-                Project.description.ilike(f"%{search_query}%")
+                Project.description.ilike(
+                    f"%{search_query}%"
+                )
 
             )
 
@@ -771,7 +807,8 @@ def projects():
     else:
 
         completion_percentage = 0
-        # =====================================
+
+    # =====================================
     # Render Page
     # =====================================
 
@@ -811,6 +848,7 @@ def projects():
 # ==========================================
 # Edit Project
 # ==========================================
+
 @app.route("/edit_project/<int:project_id>", methods=["GET", "POST"])
 def edit_project(project_id):
 
@@ -824,72 +862,106 @@ def edit_project(project_id):
 
     if request.method == "POST":
 
-        # Remove unwanted spaces
         title = request.form["title"].strip()
+
         description = request.form["description"].strip()
+
         status = request.form["status"]
+
         category = request.form["category"]
+
         priority = request.form["priority"]
 
         due_date = request.form.get("due_date")
-        uploaded_file = request.files.get("project_file")
-
-    if uploaded_file and uploaded_file.filename != "":
-        if allowed_file(uploaded_file.filename):
-            # Delete old attachment
-            if project.project_file:
-                old_file = os.path.join(
-                    app.config["UPLOAD_FOLDER"],
-                    project.project_file
-                )
-
-            if os.path.exists(old_file):
-                os.remove(old_file)
-
-        extension = uploaded_file.filename.rsplit(".", 1)[1].lower()
-
-        filename = f"{uuid.uuid4()}.{extension}"
-
-        uploaded_file.save(
-            os.path.join(
-                app.config["UPLOAD_FOLDER"],
-                filename
-            )
-        )
-
-        project.project_file = filename
-
-    else:
-
-        flash(
-            "Invalid file type.",
-            "danger"
-        )
-
-        return redirect(
-            url_for(
-                "edit_project",
-                project_id=project.id
-            )
-        )
 
         if due_date:
+
             due_date = datetime.strptime(
                 due_date,
                 "%Y-%m-%d"
             ).date()
+
         else:
+
             due_date = None
 
-        # ----------------------------
+        # =====================================
+        # File Upload
+        # =====================================
+
+        uploaded_file = request.files.get("project_file")
+
+        if uploaded_file and uploaded_file.filename:
+
+            if not allowed_file(uploaded_file.filename):
+
+                flash(
+
+                    "Only PNG, JPG, JPEG, PDF, DOC and DOCX files are allowed.",
+
+                    "danger"
+
+                )
+
+                return redirect(
+
+                    url_for(
+
+                        "edit_project",
+
+                        project_id=project.id
+
+                    )
+
+                )
+
+            # Delete old file
+
+            if project.project_file:
+
+                old_file = os.path.join(
+
+                    app.config["UPLOAD_FOLDER"],
+
+                    project.project_file
+
+                )
+
+                if os.path.exists(old_file):
+
+                    os.remove(old_file)
+
+            extension = uploaded_file.filename.rsplit(
+                ".",
+                1
+            )[1].lower()
+
+            filename = f"{uuid.uuid4()}.{extension}"
+
+            uploaded_file.save(
+
+                os.path.join(
+
+                    app.config["UPLOAD_FOLDER"],
+
+                    filename
+
+                )
+
+            )
+
+            project.project_file = filename
+                    # =====================================
         # Server-side Validation
-        # ----------------------------
+        # =====================================
 
         if len(title) < 3 or len(title) > 100:
+
             flash(
                 "Project title must be between 3 and 100 characters.",
                 "danger"
             )
+
             return redirect(
                 url_for(
                     "edit_project",
@@ -898,10 +970,12 @@ def edit_project(project_id):
             )
 
         if len(description) < 10:
+
             flash(
                 "Project description must be at least 10 characters long.",
                 "danger"
             )
+
             return redirect(
                 url_for(
                     "edit_project",
@@ -909,28 +983,47 @@ def edit_project(project_id):
                 )
             )
 
+        # =====================================
+        # Update Project
+        # =====================================
+
         project.title = title
+
         project.description = description
+
         project.status = status
+
         project.category = category
+
         project.priority = priority
+
         project.due_date = due_date
 
         db.session.commit()
 
-        flash("Project updated successfully!", "info")
+        flash(
 
-        return redirect(url_for("projects"))
+            "Project updated successfully!",
+
+            "success"
+
+        )
+
+        return redirect(
+            url_for("projects")
+        )
 
     return render_template(
+
         "edit_project.html",
+
         project=project
+
     )
-
-
 # ==========================================
 # Delete Project
 # ==========================================
+
 @app.route("/delete_project/<int:project_id>")
 def delete_project(project_id):
 
@@ -940,22 +1033,53 @@ def delete_project(project_id):
     project = Project.query.get_or_404(project_id)
 
     if project.user_email != session["email"]:
-        return "Unauthorized!"
-    if project.project_file:
-        file_path = os.path.join(
-            app.config["UPLOAD_FOLDER"],
-            project.project_file
+
+        flash(
+            "Unauthorized access.",
+            "danger"
         )
 
-    if os.path.exists(file_path):
-        os.remove(file_path)
+        return redirect(
+            url_for("projects")
+        )
+
+    # =====================================
+    # Delete Uploaded File
+    # =====================================
+
+    if project.project_file:
+
+        file_path = os.path.join(
+
+            app.config["UPLOAD_FOLDER"],
+
+            project.project_file
+
+        )
+
+        if os.path.exists(file_path):
+
+            os.remove(file_path)
+
+    # =====================================
+    # Delete Project
+    # =====================================
 
     db.session.delete(project)
+
     db.session.commit()
 
-    flash("Project deleted successfully!", "warning")
+    flash(
 
-    return redirect(url_for("projects"))
+        "Project deleted successfully!",
+
+        "success"
+
+    )
+
+    return redirect(
+        url_for("projects")
+    )
 
 
 # ==========================================
